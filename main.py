@@ -190,7 +190,7 @@ class my_store:
         else:
             print("All the products under this price: ")
             while row:
-                print("products:", row[0], "/Qnt:", row[1], "/Price:", row[2],"/Brand:",row[3])
+                print("products:", row[0], "/Qnt:", row[1], "/Price:", row[2], "/Brand:", row[3])
                 row = cursor.fetchone()
             print("")
         return
@@ -207,7 +207,7 @@ class my_store:
         else:
             print("All the products between this prices: ")
             while row:
-                print("products:", row[0], "/Qnt:", row[1], "/Price:", row[2],"/Brand:",row[3])
+                print("products:", row[0], "/Qnt:", row[1], "/Price:", row[2], "/Brand:", row[3])
                 row = cursor.fetchone()
             print("")
         return
@@ -218,7 +218,7 @@ class my_store:
         cursor = cnt.execute(sql, ('%' + mysearch + '%',))
         row = cursor.fetchone()
         while row:
-            print("Product:", row[1], "/Inventory:", row[2],"/Price:",row[4],"/brand:", row[7])
+            print("Product:", row[1], "/Inventory:", row[2], "/Price:", row[4], "/brand:", row[7])
             row = cursor.fetchone()
 
     def alltrac(self):
@@ -270,7 +270,7 @@ class my_store:
                 cnt.execute(sql2, (passw, user, ncode))
                 cnt.commit()
                 print("Your password has changed to__", passw, "__successfully!")
-                break
+                return
             else:
                 print("Something went wrong,please try again!!")
 
@@ -298,6 +298,55 @@ class my_store:
         cnt.commit()
         print("your account has been deleted successfully")
 
+    def info_changer(self):
+        ###########################################
+        user = input("Enter your username: ")
+        passw = input("Enter your password: ")
+        ncode = input("Enter your national code: ")
+        if not (ncode.isnumeric()):
+            print("National code should be completely numeric!!")
+        print(
+            "What is your plan?\n" + "1.Changing password" + "  " + "2.Changing username" + "  " + "3.Cancel operation")
+        plan = input("Choose your plan by entering numbers: ")
+        sql = '''SELECT username FROM users WHERE username=? AND password=?'''
+        cursor = cnt.execute(sql, (user, passw))
+        rows = cursor.fetchall()
+        if len(rows) == 0:
+            print("Something is wrong,please try again!!")
+        ###########################################
+        if plan == "1":
+            while True:
+                newuser = input("Enter your new username: ")
+                sql2 = '''SELECT username FROM users WHERE username=?'''
+                cursor2 = cnt.execute(sql2, (newuser,))
+                row = cursor2.fetchall()
+                if len(row) != 0:
+                    print("This username already exist,Try another one!!")
+                else:
+                    sql3 = "UPDATE users SET username=? WHERE password=? AND ncode=?"
+                    cnt.execute(sql3, (newuser, passw, ncode))
+                    print("Your user name has changed to", newuser, "successfully...")
+                    return
+        elif plan == "2":
+            while True:
+                passw = input("Enter your new password: ")
+                confirmpass = input("Please Confirm your password: ")
+                if len(passw) < 8:
+                    print("Your password should have at least 8 characters!!!")
+                elif passw != confirmpass:
+                    print("Miss match, please try again!!!")
+                elif passw == confirmpass:
+                    sql2 = '''UPDATE users SET password=? WHERE username=? AND ncode=? '''
+                    cnt.execute(sql2, (passw, user, ncode))
+                    cnt.commit()
+                    print("Your password has changed to__", passw, "__successfully!")
+                    return
+                else:
+                    print("Something went wrong,please try again!!")
+        else:
+            print("returning to main menu...")
+            return
+
     def validation(self, fname, lname, addr, username, password, cpassword, ncode):
         errorlist = []
         if fname == "" or lname == "" or username == "" or addr == "" or password == "" or cpassword == "" or ncode == "":
@@ -312,8 +361,14 @@ class my_store:
         if not (ncode.isnumeric()):
             msg = "national code should be numeric"
             errorlist.append(msg)
-        sql = 'SELECT * from users WHERE username=?'
-        cursor = cnt.execute(sql, (username,))
+        sql = 'SELECT * from users WHERE ncode=?'
+        cursor = cnt.execute(sql, (ncode,))
+        row = cursor.fetchall()
+        if len(row)!=0:
+            msg = "national code already exist"
+            errorlist.append(msg)
+        sql2 = 'SELECT * from users WHERE username=?'
+        cursor = cnt.execute(sql2, (username,))
         rows = cursor.fetchall()
         if len(rows) != 0:
             msg = "username already exist"
@@ -328,11 +383,11 @@ while True:
     if isloggin == False:
         print('''1.Submit\n2.Login\n3.Enter new product\n4.Buy\n5.products list\n6.Search for products\n''' +
               '''7.Search under the price\n8.Search between two price\n9.All transaction\n''' +
-              "10.Forget my password\n" + "11.Delete your account\n" + "12.Exit")
+              "10.Forget my password\n" + "11.Changing my info\n" + "12.Delete your account\n" + "13.Exit")
     elif isloggin == True:
         print('''1.Submit\n2.logout\n3.Enter new product\n4.Buy\n5.products list\n6.Search for products\n''' +
               '''7.Search under the price\n8.Search between two price\n9.All transaction\n''' +
-              "10.Forget my password\n" + "11.Delete your account\n" + "12.Exit")
+              "10.Forget my password\n" + "11.Changing my info\n" + "12.Delete your account\n" + "13.Exit")
     plan = input("Choose your plan by entering numbers: ")
     if plan == "1":
         obj.submit()
@@ -358,8 +413,10 @@ while True:
     elif plan == "10":
         obj.forgetpass()
     elif plan == "11":
-        obj.delete()
+        obj.info_changer()
     elif plan == "12":
+        obj.delete()
+    elif plan == "13":
         print("Goodbye")
         break
     else:
