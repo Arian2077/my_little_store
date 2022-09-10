@@ -368,8 +368,8 @@ class my_store:
             msg = "national code already exist"
             errorlist.append(msg)
         sql2 = 'SELECT * from users WHERE username=?'
-        cursor = cnt.execute(sql2, (username,))
-        rows = cursor.fetchall()
+        cursor2 = cnt.execute(sql2, (username,))
+        rows = cursor2.fetchall()
         if len(rows) != 0:
             msg = "username already exist"
             errorlist.append(msg)
