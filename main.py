@@ -306,7 +306,7 @@ class my_store:
         if not (ncode.isnumeric()):
             print("National code should be completely numeric!!")
         print(
-            "What is your plan?\n" + "1.Changing password" + "  " + "2.Changing username" + "  " + "3.Cancel operation")
+            "What is your plan?\n" + "1.Changing username" + "  " + "2.Changing password" + "  " + "3.Cancel operation")
         plan = input("Choose your plan by entering numbers: ")
         sql = '''SELECT username FROM users WHERE username=? AND password=?'''
         cursor = cnt.execute(sql, (user, passw))
